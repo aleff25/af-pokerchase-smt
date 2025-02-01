@@ -1,0 +1,38 @@
+services:
+  postgres:
+    image: postgres:14
+    environment:
+      POSTGRES_USER: poker
+      POSTGRES_PASSWORD: poker
+      POSTGRES_DB: poker
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - poker-network
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U poker -d poker" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  poker-app:
+    build: .
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/poker
+      SPRING_DATASOURCE_USERNAME: poker
+      SPRING_DATASOURCE_PASSWORD: poker
+    networks:
+      - poker-network
+    ports:
+      - "8080:8080"
+
+volumes:
+  postgres_data:
+
+networks:
+  poker-network:

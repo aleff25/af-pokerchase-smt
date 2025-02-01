@@ -1,0 +1,15 @@
+sequenceDiagram
+    participant User
+    participant TournamentService
+    participant PokerGameService
+    participant GameEntity
+
+    User->>TournamentService: startTournament()
+    TournamentService->>TournamentService: createTournament()
+    User->>TournamentService: joinTournament()
+    TournamentService->>TournamentService: addPlayer()
+    TournamentService->>TournamentService: startNextRound()
+    TournamentService->>PokerGameService: createGame()
+    PokerGameService->>GameEntity: new Game
+    PokerGameService->>TournamentService: gameId
+    TournamentService->>TournamentEntity: addActiveGame()

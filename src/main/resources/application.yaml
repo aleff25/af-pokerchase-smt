@@ -1,0 +1,25 @@
+spring:
+  application:
+    name: Poker Chase Application
+  datasource:
+    url: jdbc:postgresql://localhost:5432/poker
+    username: postgres
+    password: postgres
+    jpa:
+      hibernate:
+        ddl-auto: validate
+      properties:
+        hibernate:
+          dialect: org.hibernate.dialect.PostgreSQLDialect
+    liquibase:
+      enabled: true
+      change-log: classpath:db/changelog/db.changelog-master.yaml
+
+  blockchain:
+    rpc.url: https://mainnet.infura.io/v3/seu-projeto-id
+    contract.address: 0x...
+    wallet.privateKey: seu-private-key
+security:
+  jwt:
+    secret: secret
+    expiration: 86400000

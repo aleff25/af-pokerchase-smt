@@ -1,0 +1,28 @@
+flowchart TD
+    Start([Início do Jogo]) --> DealCards[Distribuir 2 cartas para cada jogador]
+    DealCards --> PreFlop[Rodada de Apostas: Pré-flop]
+    PreFlop --> CheckFolds{Alguém foldou?}
+    CheckFolds -- Sim --> OnlyOnePlayerLeft{Restou 1 jogador?}
+    OnlyOnePlayerLeft -- Sim --> DeclareWinner[Declarar vencedor]
+    OnlyOnePlayerLeft -- Não --> CommunityCards[Distribuir Flop 3 cartas]
+    CheckFolds -- Não --> CommunityCards
+    CommunityCards --> Flop[Rodada de Apostas: Flop]
+    Flop --> CheckFolds2{Alguém foldou?}
+    CheckFolds2 -- Sim --> OnlyOnePlayerLeft2{Restou 1 jogador?}
+    OnlyOnePlayerLeft2 -- Sim --> DeclareWinner
+    OnlyOnePlayerLeft2 -- Não --> Turn[Distribuir Turn, 4ª carta]
+    CheckFolds2 -- Não --> Turn
+    Turn --> TurnBet[Rodada de Apostas: Turn]
+    TurnBet --> CheckFolds3{Alguém foldou?}
+    CheckFolds3 -- Sim --> OnlyOnePlayerLeft3{Restou 1 jogador?}
+    OnlyOnePlayerLeft3 -- Sim --> DeclareWinner
+    OnlyOnePlayerLeft3 -- Não --> River[Distribuir River, 5ª carta]
+    CheckFolds3 -- Não --> River
+    River --> RiverBet[Rodada de Apostas: River]
+    RiverBet --> CheckFolds4{Alguém foldou?}
+    CheckFolds4 -- Sim --> OnlyOnePlayerLeft4{Restou 1 jogador?}
+    OnlyOnePlayerLeft4 -- Sim --> DeclareWinner
+    OnlyOnePlayerLeft4 -- Não --> Showdown[Showdown: Comparar mãos]
+    CheckFolds4 -- Não --> Showdown
+    Showdown --> DeclareWinner
+    DeclareWinner --> End([Fim do Jogo])
