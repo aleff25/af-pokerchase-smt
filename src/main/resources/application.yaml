@@ -23,3 +23,11 @@ security:
   jwt:
     secret: secret
     expiration: 86400000
+
+blockchain:
+  rpc:
+    url: https://mainnet.infura.io/v3/7627f7050d8a40de900a22bb5f43378d
+  contract:
+    address: 0x232D26908cc2Cd79f740A371E08b37F5bd3fD4cC
+  wallet:
+    privateKey: 7627f7050d8a40de900a22bb5f43378d

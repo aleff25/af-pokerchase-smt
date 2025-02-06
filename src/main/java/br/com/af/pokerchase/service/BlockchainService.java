@@ -18,10 +18,10 @@ public class BlockchainService {
   @Value("${blockchain.rpc.url}")
   private String rpcUrl;
 
-  @Value("${contract.address}")
+  @Value("${blockchain.contract.address}")
   private String contractAddress;
 
-  @Value("${wallet.privateKey}")
+  @Value("${blockchain.wallet.privateKey}")
   private String privateKey;
 
   private PokerGameContract contract;
