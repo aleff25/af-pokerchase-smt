@@ -1,17 +1,25 @@
 package br.com.af.pokerchase.controller;
 
+import br.com.af.pokerchase.domain.GameState;
+import br.com.af.pokerchase.dto.ActionResponseDTO;
 import br.com.af.pokerchase.dto.BetActionDTO;
 import br.com.af.pokerchase.dto.FoldActionDTO;
 import br.com.af.pokerchase.dto.GameEndRequestDTO;
+import br.com.af.pokerchase.dto.GameInitRequestDTO;
 import br.com.af.pokerchase.dto.GameStartRequestDTO;
 import br.com.af.pokerchase.dto.GameStateDTO;
+import br.com.af.pokerchase.dto.PhaseAdvanceRequestDTO;
+import br.com.af.pokerchase.dto.PlayerActionRequestDTO;
 import br.com.af.pokerchase.service.BlockchainService;
 import br.com.af.pokerchase.service.PokerGameService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.handler.annotation.Payload;
+import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import java.math.BigInteger;
 
@@ -90,6 +98,41 @@ public class PokerWebSocketController {
     // Encerra a partida
     gameService.endGame(gameId);
     broadcastGameState(gameId);
+  }
+
+  @MessageMapping("/game/initialize")
+  @SendTo("/topic/game-state")
+  public GameState initializeGame(@RequestBody GameInitRequestDTO request) throws Exception {
+    pokerGameService.initializeGame(
+      request.getGameId(),
+      request.getPlayers(),
+      request.getSmallBlind(),
+      request.getBigBlind()
+    );
+    return pokerGameService.getGameState(request.getGameId());
+  }
+
+  // Endpoint para ações dos jogadores
+  @MessageMapping("/player/action")
+  @SendTo("/topic/actions")
+  public ActionResponseDTO handlePlayerAction(@Payload PlayerActionRequestDTO action) {
+    try {
+      blockchainService.submitPlayerAction(
+        action.getGameId(),
+        action.getPlayerAddress(),
+        action.getActionType(),
+        action.getAmount()
+      );
+      return new ActionResponse(true, "Ação processada");
+    } catch (Exception e) {
+      return new ActionResponse(false, "Erro: " + e.getMessage());
+    }
+  }
+
+  // Endpoint para forçar avanço de fase (debug)
+  @MessageMapping("/game/advance-phase")
+  public void advancePhase(@Payload PhaseAdvanceRequestDTO request) {
+    pokerGameService.advanceGamePhase(request.getGameId());
   }
 
   private void broadcastGameState(String gameId) {
