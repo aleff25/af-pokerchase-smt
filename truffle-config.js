@@ -1,0 +1,36 @@
+const path = require("path");
+const HDWalletProvider = require("@truffle/hdwallet-provider");
+require("dotenv").config();
+
+module.exports = {
+  contracts_build_directory: path.join(__dirname, "src/main/resources/contracts"),
+  networks: {
+    development: {
+      host: "127.0.0.1",
+      port: 8545,
+      network_id: "*",
+    },
+    sepolia: {
+      provider: () => new HDWalletProvider({
+        mnemonic: process.env.MNEMONIC,
+        providerOrUrl: process.env.SEPOLIA_RPC_URL
+      }),
+      network_id: 11155111,
+      gas: 5500000,
+      confirmations: 2,
+      timeoutBlocks: 200,
+      skipDryRun: true
+    }
+  },
+  compilers: {
+    solc: {
+      version: "0.8.25",
+      settings: {
+        optimizer: {
+          enabled: true,
+          runs: 200
+        }
+      }
+    }
+  }
+};

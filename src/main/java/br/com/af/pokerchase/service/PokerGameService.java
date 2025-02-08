@@ -31,9 +31,7 @@ import java.math.BigInteger;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 @RequiredArgsConstructor
@@ -45,54 +43,9 @@ public class PokerGameService {
   private final BlockchainService blockchainService;
   private final SimpMessagingTemplate messagingTemplate;
 
-  private final Map<String, GameState> activeGames = new ConcurrentHashMap<>();
-  private final Map<String, String> playerGameMap = new ConcurrentHashMap<>();
-
   @PostConstruct
   public void init() {
     blockchainService.listenToGameEvents(this::handleBlockchainEvent);
-  }
-
-  public void createNewGame(String gameId, List<String> players, GameConfig config) {
-    GameState game = new GameState(
-      gameId,
-      players,
-      config.getSmallBlind(),
-      config.getBigBlind()
-    );
-
-    activeGames.put(gameId, game);
-    players.forEach(p -> playerGameMap.put(p, gameId));
-
-    // Inicia o torneio na blockchain
-    blockchainService.startTournamentOnChain(gameId, players, config);
-  }
-
-  @Async
-  public void processPlayerAction(String gameId, String playerAddress, PokerAction action) {
-    try {
-      GameState game = activeGames.get(gameId);
-      if (game == null || !game.isPlayerTurn(playerAddress)) return;
-
-      // Atualiza estado local
-      game.applyAction(playerAddress, action);
-
-      // Envia ação para blockchain
-      TransactionReceipt receipt = blockchainService.submitActionToChain(
-        gameId,
-        playerAddress,
-        action.getType().name(),
-        action.getAmount()
-      );
-
-      if (receipt.isStatusOK()) {
-        broadcastGameState(gameId);
-      } else {
-        handleFailedTransaction(gameId, receipt);
-      }
-    } catch (Exception e) {
-      sendErrorToClient(playerAddress, "Action failed: " + e.getMessage());
-    }
   }
 
   private void handleBlockchainEvent(ContractEvent event) {
