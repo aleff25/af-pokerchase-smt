@@ -1,109 +1,189 @@
 databaseChangeLog:
   - changeSet:
-      id: 1
-      author: poker
+      id: 001-1
+      author: Aleff Oliveira
       changes:
         - createTable:
-            tableName: game
+            tableName: table_entity
             columns:
               - column:
                   name: id
-                  type: VARCHAR(255)
+                  type: BIGINT
+                  autoIncrement: true
                   constraints:
                     primaryKey: true
                     nullable: false
               - column:
-                  name: type
-                  type: VARCHAR(20)
+                  name: entry_fee
+                  type: BIGINT
               - column:
-                  name: state
-                  type: VARCHAR(20)
-              - column:
-                  name: pot
-                  type: INT
-              - column:
-                  name: current_bet
-                  type: INT
-              - column:
-                  name: created_at
-                  type: TIMESTAMP
-              - column:
-                  name: deck_cards
-                  type: JSONB
-              - column:
-                  name: community_cards
-                  type: JSONB
-
-        - createTable:
-            tableName: player
-            columns:
-              - column:
-                  name: id
-                  type: VARCHAR(255)
-                  constraints:
-                    primaryKey: true
-                    nullable: false
-              - column:
-                  name: game_id
-                  type: VARCHAR(36)
-                  constraints:
-                    foreignKeyName: fk_player_game
-                    referencedTableName: game
-                    referencedColumnNames: id
-              - column:
-                  name: wallet_address
-                  type: VARCHAR(42)
-              - column:
-                  name: balance
-                  type: INT
-              - column:
-                  name: folded
+                  name: is_active
                   type: BOOLEAN
               - column:
-                  name: hand
-                  type: JSONB
+                  name: state
+                  type: VARCHAR(255)
 
+  - changeSet:
+      id: 001-2
+      author: Aleff Oliveira
+      changes:
         - createTable:
-            tableName: game_action_log
+            tableName: player_entity
             columns:
               - column:
                   name: id
-                  type: VARCHAR(255)
+                  type: BIGINT
+                  autoIncrement: true
                   constraints:
                     primaryKey: true
+                    nullable: false
               - column:
-                  name: game_id
-                  type: VARCHAR(36)
+                  name: address
+                  type: VARCHAR(255)
+              - column:
+                  name: balance
+                  type: BIGINT
+              - column:
+                  name: table_id
+                  type: BIGINT
+        - addForeignKeyConstraint:
+            baseTableName: player_entity
+            baseColumnNames: table_id
+            constraintName: fk_player_table
+            referencedTableName: table_entity
+            referencedColumnNames: id
+
+  - changeSet:
+      id: 001-3
+      author: Aleff Oliveira
+      changes:
+        - createTable:
+            tableName: card_entity
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: suit
+                  type: VARCHAR(255)
+              - column:
+                  name: rank
+                  type: VARCHAR(255)
+
+  - changeSet:
+      id: 001-4
+      author: Aleff Oliveira
+      changes:
+        - createTable:
+            tableName: player_hand_entity
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
               - column:
                   name: player_id
-                  type: VARCHAR(36)
+                  type: BIGINT
               - column:
-                  name: action_type
-                  type: VARCHAR(20)
+                  name: card1_id
+                  type: BIGINT
               - column:
-                  name: details
-                  type: TEXT
-              - column:
-                  name: timestamp
-                  type: TIMESTAMP
+                  name: card2_id
+                  type: BIGINT
+        - addForeignKeyConstraint:
+            baseTableName: player_hand_entity
+            baseColumnNames: player_id
+            constraintName: fk_hand_player
+            referencedTableName: player_entity
+            referencedColumnNames: id
+        - addForeignKeyConstraint:
+            baseTableName: player_hand_entity
+            baseColumnNames: card1_id
+            constraintName: fk_hand_card1
+            referencedTableName: card_entity
+            referencedColumnNames: id
+        - addForeignKeyConstraint:
+            baseTableName: player_hand_entity
+            baseColumnNames: card2_id
+            constraintName: fk_hand_card2
+            referencedTableName: card_entity
+            referencedColumnNames: id
 
+  - changeSet:
+      id: 001-5
+      author: Aleff Oliveira
+      changes:
         - createTable:
-            tableName: tournament
+            tableName: community_card_entity
             columns:
               - column:
                   name: id
-                  type: VARCHAR(255)
+                  type: BIGINT
+                  autoIncrement: true
                   constraints:
                     primaryKey: true
+                    nullable: false
               - column:
-                  name: player_ids
-                  type: JSONB
+                  name: table_id
+                  type: BIGINT
               - column:
-                  name: active_games
-                  type: JSONB
+                  name: card_id
+                  type: BIGINT
+        - addForeignKeyConstraint:
+            baseTableName: community_card_entity
+            baseColumnNames: table_id
+            constraintName: fk_community_table
+            referencedTableName: table_entity
+            referencedColumnNames: id
+        - addForeignKeyConstraint:
+            baseTableName: community_card_entity
+            baseColumnNames: card_id
+            constraintName: fk_community_card
+            referencedTableName: card_entity
+            referencedColumnNames: id
+
+  - changeSet:
+      id: 001-6
+      author: Aleff Oliveira
+      changes:
+        - createTable:
+            tableName: action_entity
+            columns:
               - column:
-                  name: current_round
-                  type: INT
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
               - column:
-                  name: status
-                  type: VARCHAR(20)
+                  name: action_type
+                  type: VARCHAR(255)
+              - column:
+                  name: amount
+                  type: BIGINT
+              - column:
+                  name: player_id
+                  type: BIGINT
+              - column:
+                  name: table_id
+                  type: BIGINT
+        - addForeignKeyConstraint:
+            baseTableName: action_entity
+            baseColumnNames: player_id
+            constraintName: fk_action_player
+            referencedTableName: player_entity
+            referencedColumnNames: id
+        - addForeignKeyConstraint:
+            baseTableName: action_entity
+            baseColumnNames: table_id
+            constraintName: fk_action_table
+            referencedTableName: table_entity
+            referencedColumnNames: id

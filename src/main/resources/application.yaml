@@ -3,8 +3,8 @@ spring:
     name: Poker Chase Application
   datasource:
     url: jdbc:postgresql://localhost:5432/poker
-    username: postgres
-    password: postgres
+    username: poker
+    password: poker
     jpa:
       hibernate:
         ddl-auto: validate
@@ -14,11 +14,6 @@ spring:
     liquibase:
       enabled: true
       change-log: classpath:db/changelog/db.changelog-master.yaml
-
-  blockchain:
-    rpc.url: https://mainnet.infura.io/v3/seu-projeto-id
-    contract.address: 0x...
-    wallet.privateKey: seu-private-key
 security:
   jwt:
     secret: secret
@@ -26,8 +21,8 @@ security:
 
 blockchain:
   rpc:
-    url: https://mainnet.infura.io/v3/7627f7050d8a40de900a22bb5f43378d
+    url: "http://127.0.0.1:8545"
   contract:
-    address: 0x232D26908cc2Cd79f740A371E08b37F5bd3fD4cC
+    address: "0x73382711A28e26B5CEBC99Be13321657Cf53cef5"
   wallet:
-    privateKey: 7627f7050d8a40de900a22bb5f43378d
+    privateKey: "0xdc53880b634d0dbf7c28d510c9019869f116409e510fabb43eeabff7df8ad163"

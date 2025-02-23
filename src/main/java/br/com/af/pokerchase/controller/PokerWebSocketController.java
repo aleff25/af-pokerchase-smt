@@ -1,75 +1,35 @@
 package br.com.af.pokerchase.controller;
 
-import br.com.af.pokerchase.dto.ActionResponseDTO;
-import br.com.af.pokerchase.dto.GameInitRequestDTO;
-import br.com.af.pokerchase.dto.GameStateDTO;
-import br.com.af.pokerchase.dto.PhaseAdvanceRequestDTO;
-import br.com.af.pokerchase.dto.PlayerActionRequestDTO;
-import br.com.af.pokerchase.service.BlockchainService;
-import br.com.af.pokerchase.service.PokerGameService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.handler.annotation.Payload;
-import org.springframework.messaging.handler.annotation.SendTo;
+import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestBody;
 
 @Controller
+@RequiredArgsConstructor
 public class PokerWebSocketController {
 
   private final SimpMessagingTemplate messagingTemplate;
-  private final PokerGameService gameService;
-  private final BlockchainService blockchainService;
 
-  @Autowired
-  public PokerWebSocketController(
-    SimpMessagingTemplate messagingTemplate,
-    PokerGameService gameService,
-    BlockchainService blockchainService
-  ) {
-    this.messagingTemplate = messagingTemplate;
-    this.gameService = gameService;
-    this.blockchainService = blockchainService;
+  public void sendEvent(String eventType, String eventData) {
+    messagingTemplate.convertAndSend("/topic/events", new Event(eventType, eventData));
   }
 
-  @MessageMapping("/game/initialize")
-  @SendTo("/topic/game-state")
-  public GameStateDTO initializeGame(@RequestBody GameInitRequestDTO request) throws Exception {
-    gameService.initializeGame(
-      request.getGameId(),
-      request.getPlayers(),
-      request.getSmallBlind(),
-      request.getBigBlind()
-    );
-    return gameService.getGameState(request.getGameId());
-  }
+  // Classe interna para representar eventos
+  public static class Event {
+    private String type;
+    private String data;
 
-  // Endpoint para ações dos jogadores
-  @MessageMapping("/player/action")
-  @SendTo("/topic/actions")
-  public ActionResponseDTO handlePlayerAction(@Payload PlayerActionRequestDTO action) {
-    try {
-      blockchainService.submitPlayerAction(
-        action.getGameId(),
-        action.getPlayerAddress(),
-        action.getActionType(),
-        action.getAmount()
-      );
-      return new ActionResponse(true, "Ação processada");
-    } catch (Exception e) {
-      return new ActionResponse(false, "Erro: " + e.getMessage());
+    public Event(String type, String data) {
+      this.type = type;
+      this.data = data;
     }
-  }
 
-  // Endpoint para forçar avanço de fase (debug)
-  @MessageMapping("/game/advance-phase")
-  public void advancePhase(@Payload PhaseAdvanceRequestDTO request) {
-    gameService.advanceGamePhase(request.getGameId());
-  }
+    public String getType() {
+      return type;
+    }
 
-  private void broadcastGameState(String gameId) {
-    GameStateDTO state = gameService.getGameState(gameId);
-    messagingTemplate.convertAndSend("/topic/game/" + gameId, state);
+    public String getData() {
+      return data;
+    }
   }
 }
